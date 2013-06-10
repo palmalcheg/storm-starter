@@ -1,5 +1,8 @@
 package storm.starter.bolt;
 
+import java.util.Date;
+
+import storm.starter.util.TupleHelpers;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
@@ -10,7 +13,15 @@ public class PrinterBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        System.out.println(tuple);
+    	if ( TupleHelpers.isTickTuple(tuple) ){
+    		System.out.println("Tick "+tuple);
+    	}
+    	else {
+
+    		System.out.println(tuple.getSourceStreamId());
+    		System.out.println(tuple);
+    	}
+        
     }
 
     @Override
