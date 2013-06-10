@@ -26,6 +26,8 @@ import com.google.common.collect.ImmutableMap;
 
 public class TradeAliasIndexTest extends AbstractSharedClusterTest {
 	
+	private static final String My_alias = "MW_blotter";
+
 	@Test
     public void testSearchingFilteringAliasesSingleIndex() throws Exception {
         // delete all indices
@@ -42,7 +44,7 @@ public class TradeAliasIndexTest extends AbstractSharedClusterTest {
 
         logger.info("--> adding filtering aliases to index [{}]",trade_index);
         client().admin().indices().prepareAliases().addAlias(trade_index, "alias1").execute().actionGet();
-        client().admin().indices().prepareAliases().addAlias(trade_index, "MW_blotter" , andFilter( 
+        client().admin().indices().prepareAliases().addAlias(trade_index, My_alias , andFilter( 
         		                                                                nestedFilter("header", 
 							        		                                      boolFilter().must(termFilter("header.origination", "mw"))
 							        		                                    ),
@@ -58,7 +60,7 @@ public class TradeAliasIndexTest extends AbstractSharedClusterTest {
         		           .addParty("partyA", "HWWWWWWWW")
         		           .addParty("partyB", "LON")
         		           ;
-        Trade trade2 = new Trade().header("ITRAC", 2)
+        Trade trade2 = new Trade().header("SOME_ORIGIN", 2)
                 .addStream("float", 10000)
                 .addStream("fixed", 20000)
          .addParty("partyA", "HWWWWWWWW")
@@ -77,7 +79,7 @@ public class TradeAliasIndexTest extends AbstractSharedClusterTest {
         assertHits(searchResponse.getHits(), "1","2");
         
         logger.info("--> checking MW filtering alias search");
-        searchResponse = client().prepareSearch("MW_blotter").setQuery(matchAllQuery()).execute().actionGet();
+        searchResponse = client().prepareSearch(My_alias).setQuery(matchAllQuery()).execute().actionGet();
         for (SearchHit searchHit : searchResponse.getHits()) {
 			logger.info("Score {} Hit trade : {} " , searchHit.getScore(), searchHit.getSourceAsString());
 		}
